@@ -112,5 +112,34 @@ def full_loss(N, x, W, delta, y, lambd):
 - Softmax returns probabilities instead of scores
 - [Cross-entropy loss] replaces hinge loss
     L[i] = -f[y[i]] + log(Sum(j, e**f[j])) 
-    f[j] = jth element of the vector of class scores f
+    f[j] = jth element of the vector of class scores <f>
+- [Softmax function] - takes a vector of arbitrary real-valued scores in <z> and squashes it to a vector of values 
+  between 0 and 1 that sum to 1
+    f(j, z) = (e ** z[j])/(Sum(k, e ** z[k]))
+- [Cross-entropy] - the cross entropy between a true distribution p and an estimated distribution q is defined as:
+    H(p,q) = -Sum(x, p(x)log(q(x)))
+    - Minimzes the cross-entropy between estimated class probabilities (q) and the true distribution (where p = some 
+      sequence of 0's and 1's, actual class probabilities)
+- P(y[i] | x[i];W) = (e ** f[y[i]])/(Sum(j, e**f[j])) - normalized probability assigned to the correct label y[i] given 
+  the image x[i] and parameterized by W
+    - Exponentiating gives unnormalized probabilities (since the vector f is log values) and dividing normalizes
+    - [Maximum likelihood estimation (MLE)] - minimizing the negative log likelihood of the correct class
+- Practical issues: numeric stability
+    - e ** f[y[i]] and Sum(j, e**f[j]) can be very large, numerically unstable
+    - Instead, use an exponent trick to rewrite function as:
+        e**(f[y[i]] + log(C)) / Sum(j, e**(f[j] + log(C)))
+        where C can be any constant
+    - Common choice is log(C) = -max(f[j]) (make it so that the highest number is 0)
+
+## SVM vs Softmax ##
+- Softmax provides probabilities
+    - Probability distribution depends on the regularization strength <lambda>
+        - The higher lambda is, the tighter the output probabilities get (almost to uniform!)
+- SVM and Softmax are comparable in performance
+    - SVM is a more local objective
+        - Doesn't care about the distribution of scores as long as one surpasses the margin, computes loss ignoring this
+            - Ex: can have [10, -100, -100] or [10, 9, 9] and both losses would be 0 (if the margin delta = 1)
+    - Softmax never satisfied
+        - Cares more about the distribution of scores, will always provide a loss
+            - Ex: with previous ex, the [10, 9, 9] would have much higher loss
 """
